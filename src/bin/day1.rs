@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs;
 use std::iter::zip;
 use std::str::Lines;
@@ -9,7 +10,16 @@ fn part1(fst: &Vec<i32>, snd: &Vec<i32>) -> i32 {
     mfst.sort();
     msnd.sort();
     let zipped = zip(mfst, msnd);
-    zipped.map(|(x,y)| (x-y).abs()).sum::<i32>()
+    zipped.map(|(x, y)| (x - y).abs()).sum::<i32>()
+}
+
+fn part2(fst: &Vec<i32>, snd: &Vec<i32>) -> i32 {
+    let freq = snd.iter().fold(HashMap::new(),
+                               |mut map, val| {
+                                   map.entry(val).and_modify(|f| *f += 1).or_insert(1);
+                                   map
+                               });
+    fst.iter().map(|x| *x * *freq.get(x).unwrap_or(&0)).sum()
 }
 
 fn parse(lines: Lines<'_>) -> (Vec<i32>, Vec<i32>) {
@@ -29,5 +39,8 @@ fn main() {
     let parsed = parse(contents.lines());
 
     // part 1
-    println!("{}", part1(&parsed.0, &parsed.1));
+    // println!("{}", part1(&parsed.0, &parsed.1));
+
+    // part 2
+    println!("{}", part2(&parsed.0, &parsed.1));
 }
