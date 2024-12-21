@@ -20,8 +20,28 @@ fn is_safe(report: &Vec<i32>) -> bool {
     true
 }
 
+fn is_safe2(report: &Vec<i32>) -> bool {
+    if is_safe(report) {
+        return true;
+    }
+
+    let mut report2 = report.clone();
+    for i in 0..report2.len() {
+        let del = report2.remove(i);
+        if is_safe(&report2) {
+            return true;
+        }
+        report2.insert(i, del);
+    }
+    false
+}
+
 fn part1(input: &Vec<Vec<i32>>) -> u32 {
     input.iter().filter(|x| is_safe(*x)).count() as u32
+}
+
+fn part2(input: &Vec<Vec<i32>>) -> u32 {
+    input.iter().filter(|x| is_safe2(*x)).count() as u32
 }
 
 fn main() {
@@ -29,5 +49,8 @@ fn main() {
     let parsed = parse(contents.lines());
 
     // part 1
-    println!("{}", part1(&parsed));
+    // println!("{}", part1(&parsed));
+
+    // part 2
+    println!("{}", part2(&parsed));
 }
