@@ -3,7 +3,7 @@ use std::fs;
 
 struct State {
     next_expected_char: char,
-    found: i32
+    found: i32,
 }
 
 fn parse(input: &String) -> Vec<Vec<char>> {
@@ -45,12 +45,52 @@ fn find_in_line(input: &Vec<char>) -> i32 {
     count
 }
 
+fn find_in_line_and_rev(input: &Vec<char>) -> i32 {
+    let mut res = find_in_line(input);
+    let reversed_line = input.iter().map(|x| *x).rev().collect::<Vec<_>>();
+    res += find_in_line(&reversed_line);
+    res
+}
+
 fn part1(input: &Vec<Vec<char>>) -> i32 {
     let mut res = 0;
     // horizontal lines
     for i in 0..input.len() {
         let line = &input[i];
-        res += find_in_line(line);
+        res += find_in_line_and_rev(line);
+    }
+    // vertical lines
+    for i in 0..input[0].len() {
+        let mut vertical = Vec::new();
+        for j in 0..input.len() {
+            vertical.push(input[j][i]);
+        }
+        res += find_in_line_and_rev(&vertical);
+    }
+    // diagonal lines left to right
+    // starting from the top
+    for i in 0..input[0].len() {
+        let mut col = i;
+        let mut diag = Vec::new();
+        let mut row = 0;
+        while col < input[0].len() && row < input.len() {
+            diag.push(input[row][col]);
+            row += 1;
+            col += 1;
+        }
+        res += find_in_line_and_rev(&diag);
+    }
+    // starting from the left
+    for i in 1..input.len() {
+        let mut row = i;
+        let mut col = 0;
+        let mut diag = Vec::new();
+        while col < input[0].len() && row < input.len() {
+            diag.push(input[row][col]);
+            row += 1;
+            col += 1;
+        }
+        res += find_in_line_and_rev(&diag);
     }
     res
 }
