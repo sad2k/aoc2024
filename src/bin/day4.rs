@@ -92,6 +92,39 @@ fn part1(input: &Vec<Vec<char>>) -> i32 {
         }
         res += find_in_line_and_rev(&diag);
     }
+    // diagonal lines right to left
+    // starting from the top
+    for i in 0..input[0].len() {
+        let mut col = i;
+        let mut diag = Vec::new();
+        let mut row = 0;
+        while col >= 0 && row < input.len() {
+            diag.push(input[row][col]);
+            row += 1;
+            if col == 0 {
+                break;
+            } else {
+                col -= 1;
+            }
+        }
+        res += find_in_line_and_rev(&diag);
+    }
+    // starting from the right
+    for i in 1..input.len() {
+        let mut row = i;
+        let mut col = input[0].len() - 1;
+        let mut diag = Vec::new();
+        while col >= 0 && row < input.len() {
+            diag.push(input[row][col]);
+            row += 1;
+            if (col == 0) {
+                break;
+            } else {
+                col -= 1;
+            }
+        }
+        res += find_in_line_and_rev(&diag);
+    }
     res
 }
 
