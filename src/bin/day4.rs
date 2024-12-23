@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 
 struct State {
@@ -128,10 +128,44 @@ fn part1(input: &Vec<Vec<char>>) -> i32 {
     res
 }
 
+fn part2(input: &Vec<Vec<char>>) -> i32 {
+    let mut res = 0;
+    let mut set = HashSet::new();
+    let mut set_ms = HashSet::from(['M', 'S']);
+    for i in 0..input.len() {
+        for j in 0..input[0].len() {
+            if input.len() - i > 2 && input[0].len() - j > 2 {
+                let top_left = input[i][j];
+                let top_right = input[i][j + 2];
+                let middle = input[i + 1][j + 1];
+                let bottom_left = input[i + 2][j];
+                let bottom_right = input[i + 2][j + 2];
+                if (middle == 'A') {
+                    set.clear();
+                    set.insert(top_left);
+                    set.insert(bottom_right);
+                    if set == set_ms {
+                        set.clear();
+                        set.insert(top_right);
+                        set.insert(bottom_left);
+                        if set == set_ms {
+                            res += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    res
+}
+
 fn main() {
     let contents = fs::read_to_string("inputs/day4.txt").unwrap();
     let parsed = parse(&contents);
 
     // part 1
-    println!("{}", part1(&parsed));
+    // println!("{}", part1(&parsed));
+
+    // part 2
+    println!("{}", part2(&parsed));
 }
