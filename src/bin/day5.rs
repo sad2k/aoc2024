@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::fs;
 
-fn build_graph(rules: &Vec<Vec<i32>>, update: &Vec<i32>) -> HashMap<i32, usize> {
+fn build_graph(rules: &Vec<Vec<i32>>, update: &Vec<i32>) -> (HashMap<i32, usize>, Vec<i32>) {
     let mut parents_by_child: HashMap<i32, HashSet<i32>> = HashMap::new();
     let mut children_by_parent: HashMap<i32, HashSet<i32>> = HashMap::new();
     let update_set: HashSet<i32> = HashSet::from_iter(update.clone());
@@ -32,23 +32,41 @@ fn build_graph(rules: &Vec<Vec<i32>>, update: &Vec<i32>) -> HashMap<i32, usize> 
             }
         }
     }
+    let topo: Vec<_> = topologically_sorted.iter().map(|t| (*t).0).collect();
     let map: HashMap<i32, usize> = topologically_sorted.into_iter().collect();
-    map
+    (map, topo)
+}
+
+fn is_in_order(update: &Vec<i32>, graph: &HashMap<i32, usize>) -> bool {
+    let mut prev_ord = None;
+    for page in update {
+        let ord = *graph.get(&page).expect(&format!("Not in graph: {}", page));
+        if ord < prev_ord.unwrap_or(0) {
+            return false;
+        }
+        prev_ord = Some(ord);
+    }
+    return true
 }
 
 fn part1(rules: &Vec<Vec<i32>>, updates: &Vec<Vec<i32>>) -> i32 {
     let mut res = 0;
-    'outer: for update in updates {
-        let graph = build_graph(rules, update);
-        let mut prev_ord = None;
-        for page in update {
-            let ord = *graph.get(&page).expect(&format!("Not in graph: {}", page));
-            if ord < prev_ord.unwrap_or(0) {
-                continue 'outer;
-            }
-            prev_ord = Some(ord);
+    for update in updates {
+        let (graph, topo) = build_graph(rules, update);
+        if is_in_order(update, &graph) {
+            res += update[update.len() / 2];
         }
-        res += update[update.len() / 2];
+    }
+    res
+}
+
+fn part2(rules: &Vec<Vec<i32>>, updates: &Vec<Vec<i32>>) -> i32 {
+    let mut res = 0;
+    for update in updates {
+        let (graph, topo) = build_graph(rules, update);
+        if !is_in_order(update, &graph) {
+            res += topo[topo.len() / 2];
+        }
     }
     res
 }
@@ -63,5 +81,8 @@ fn main() {
         .collect();
 
     // part 1
-    println!("{}", part1(&rules, &updates));
+    // println!("{}", part1(&rules, &updates));
+
+    // part 2
+    println!("{}", part2(&rules, &updates));
 }
